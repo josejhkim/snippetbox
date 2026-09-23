@@ -29,6 +29,10 @@ func snippetCreate(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Display a form for creating a new request"))
 }
 
+func snippetCreatePost(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Save a new snippet..."))
+}
+
 func main() {
 	// ServeMux functions as a router that maps the request URLs
 	// to the corresponding handlers.
@@ -41,12 +45,19 @@ func main() {
 	// whereas route paths with no trailing slashes only handle the specified route
 	// to restrict the wildcard matching for trailing slashes, we can attach a {$}.
 
-	mux.HandleFunc("/{$}", home)
+	// Prefixing the route with the method makes it only handle the matching method
+	// for the given route.
+	// GET also matches HEAD, which is used to retrieve the headers of a resource
+	// without actually downloading the resource
+	mux.HandleFunc("GET /{$}", home)
 
 	// If this route was enabled instead of /snippet/create, then any requests to /snippet/create
 	// would be redirected here instead.
 	// mux.HandleFunc("/snippet/create/", snippetCreate2)
-	mux.HandleFunc("/snippet/create", snippetCreate)
+	mux.HandleFunc("GET /snippet/create", snippetCreate)
+
+	// Okay to register 2 same routes under different methods
+	mux.HandleFunc("POST /snippet/create", snippetCreatePost)
 
 	// Registers an {id} wildcard.
 	// All wildcards are read as strings.
@@ -58,7 +69,7 @@ func main() {
 	// If we want the entire subtree as the path param,
 	// we can do "snippet/view/{id...}"
 	// to get the entire trailing values as a path param.
-	mux.HandleFunc("/snippet/view/{id}", snippetView)
+	mux.HandleFunc("GET /snippet/view/{id}", snippetView)
 
 	// If we have an overlapping route like
 	// mux.HandleFunc("/snippet/view/edit", snippetEdit)
