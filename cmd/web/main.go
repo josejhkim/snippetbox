@@ -56,6 +56,22 @@ func main() {
 	// /post/new/{id}
 	// /post/{author}/latest
 	// then this causes an error.
+	// ---
+
+	// Create a file server to serve files out of the ./ui/static directory.
+	// The path here should be relative to the directory root.
+	fileServer := http.FileServer(http.Dir("./ui/static"))
+	// Register the file server as a handler for GET requests
+	// with URL starting with /static.
+	// Here the file server gets the file/directory under the specified URL path
+	// so we need to remove the /static prefix.
+	// For example, GET /static/css/styles.css
+	// will look for a file in ./ui/static/static/css/styles.css
+	// unless we strip the prefix.
+	// ---
+	// To disable directory listings, we can include a blank index.html file
+	// which will be shown by default at the root level, instead of the dir listing.
+	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
 	// Prints a log message to say the server is starting.
 	log.Print("starting server on :4000")
