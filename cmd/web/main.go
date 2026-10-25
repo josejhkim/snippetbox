@@ -26,6 +26,7 @@ func main() {
 	// If this route was enabled instead of /snippet/create, then any requests to /snippet/create
 	// would be redirected here instead.
 	// mux.HandleFunc("/snippet/create/", snippetCreate2)
+
 	mux.HandleFunc("GET /snippet/create", snippetCreate)
 
 	// Okay to register 2 same routes under different methods

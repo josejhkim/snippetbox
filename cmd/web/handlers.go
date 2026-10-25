@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -12,13 +14,44 @@ func home(w http.ResponseWriter, r *http.Request) {
 	// to the response header map.
 	// Any header map modifications must be done before calling
 	// w.WriteHeader()
-	w.Header().Add("Server", "Go")
 
 	// http's DetectContentType() automatically detects the content type
 	// and sets the content type accordingly in the header
 	// but one caveat is that it can't distinguish application/json from text/plain
+	w.Header().Add("Server", "Go")
+	// ---
 
-	w.Write([]byte("Hello from snippetbox"))
+	files := []string{
+		"./ui/html/base.tmpl",
+		"./ui/html/pages/home.tmpl",
+		"./ui/html/partials/nav.tmpl",
+	}
+
+	// Use the template.ParseFiles() function to read the template file
+	// into a template set.
+	// The file path must either be relative to the CWD, or an absolute path
+	// ts, err := template.ParseFiles("./ui/html/base.tmpl")
+	// ---
+	// Files can also be passed as variadic arguments
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Use the Execute() method on the template set to write the template content
+	// into the response body.
+	// The last parameter represents dynamic data that we want to pass in.
+	// err = ts.Execute(w, nil)
+	// ---
+	// Uses the ExecuteTemplate() method to write the contents of the "base"
+	// template as the response body
+	err = ts.ExecuteTemplate(w, "base", nil)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 }
 
 func snippetView(w http.ResponseWriter, r *http.Request) {
